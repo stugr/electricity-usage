@@ -13,6 +13,7 @@ headless = True # toggle to false if you need to see the browser
 
 log_count = 1
 dir = os.path.dirname(os.path.abspath(__file__))
+# get chromedriver from https://sites.google.com/a/chromium.org/chromedriver/downloads
 chromedriver = os.path.join(dir, "chromedriver.exe")
 
 # debug logger
@@ -85,11 +86,13 @@ WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.ID, "abc0")))
 logger()
 
 # wait for report type to be selectable, then select detailed report (csv)
+# this is still buggy and doesn't always select the field
+# probably need to wait until the option exists, not just the select itself
 WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID, "reportType")))
 Select(driver.find_element_by_id('reportType')).select_by_visible_text('Detailed Report (CSV)')
 
 # wait then click request meter data
-time.sleep(1)
+time.sleep(1) # might help with above bug but now I'm not convinced
 driver.find_element_by_xpath("//input[@value='Request Meter Data']").click()
 
 logger()

@@ -12,3 +12,5 @@ Rename `sample.env` to `.env` and populate `POWERCOR_` values
 - Toggle `headless` to false to enable the browser to be visible while running
 
 Script cleans up after itself at the start of a run, removing csv and png
+
+Success should end up with a csv file in the dir

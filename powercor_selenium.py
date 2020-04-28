@@ -97,9 +97,14 @@ driver.find_element_by_xpath("//input[@value='Request Meter Data']").click()
 
 logger()
 
-# sleep until csv exists (should add a timeout)
+# sleep until csv exists
+timeout_max = 30
+timeout = 0
 while not glob.glob('*CITIPOWER_DETAILED.csv'):
+    if timeout_max == timeout:
+        break
     time.sleep(1)
+    timeout+=1
 
 logger()
 

@@ -76,7 +76,16 @@ driver.find_element_by_id('j_id0:SiteTemplate:j_id297:loginComponent:loginForm:l
 logger()
 
 # click download data
-WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, '//button[contains(text(),"Download Data")]'))).click()
+try:
+    WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, '//button[contains(text(),"Download Data")]'))).click()
+except:
+    # get error
+    try:
+        error = driver.find_element_by_xpath("//div[@class='messageText']").text
+    except:
+        raise Exception("Download Data button wasn't found after clicking login and we didn't get an error message back from the page. Suggest disabling headless to troubleshoot") from None
+    else:
+        raise Exception("Error message from site: {}".format(error).replace("Error:\n","")) from None
 
 logger()
 

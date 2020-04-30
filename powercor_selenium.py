@@ -17,14 +17,15 @@ dir = os.path.dirname(os.path.abspath(__file__))
 chromedriver = os.path.join(dir, "chromedriver.exe")
 
 # debug logger
-def logger():
+def logger(msg=""):
     global log_count
     global driver
     global dir
     global debug
 
     if debug:
-        print(log_count)
+        msg = "{}. {}".format(log_count, msg)
+        print(msg)
         driver.save_screenshot(os.path.join(dir, "screenshot_{}.png".format(log_count)))
         log_count+=1
 

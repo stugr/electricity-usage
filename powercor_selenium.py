@@ -62,60 +62,59 @@ options.add_experimental_option("prefs", {
   "safebrowsing.enabled": True
 })
 
-driver = webdriver.Chrome(executable_path=chromedriver, options=options)
+with webdriver.Chrome(executable_path=chromedriver, options=options) as driver:
+    # load login page 
+    driver.get('https://customermeterdata.portal.powercor.com.au/customermeterdata/CADAccountPage?startURL=%2Fcustomermeterdata%2FCADAccountPage')
 
-# load login page 
-driver.get('https://customermeterdata.portal.powercor.com.au/customermeterdata/CADAccountPage?startURL=%2Fcustomermeterdata%2FCADAccountPage')
+    logger("Login page loaded")
 
-logger("Login page loaded")
+    # fill in username/password and click login
+    driver.find_element_by_id('j_id0:SiteTemplate:j_id297:loginComponent:loginForm:username').send_keys(powercor['username'])
+    driver.find_element_by_id('j_id0:SiteTemplate:j_id297:loginComponent:loginForm:password').send_keys(powercor['password'])
+    driver.find_element_by_id('j_id0:SiteTemplate:j_id297:loginComponent:loginForm:loginButtonAccountPage').click()
 
-# fill in username/password and click login
-driver.find_element_by_id('j_id0:SiteTemplate:j_id297:loginComponent:loginForm:username').send_keys(powercor['username'])
-driver.find_element_by_id('j_id0:SiteTemplate:j_id297:loginComponent:loginForm:password').send_keys(powercor['password'])
-driver.find_element_by_id('j_id0:SiteTemplate:j_id297:loginComponent:loginForm:loginButtonAccountPage').click()
+    logger("Login attempted")
 
-logger("Login attempted")
-
-# click download data
-try:
-    WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, '//button[contains(text(),"Download Data")]'))).click()
-except:
-    # get error
+    # click download data
     try:
-        error = driver.find_element_by_xpath("//div[@class='messageText']").text
+        WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, '//button[contains(text(),"Download Data")]'))).click()
     except:
-        raise Exception("Download Data button wasn't found after clicking login and we didn't get an error message back from the page. Suggest disabling headless to troubleshoot") from None
-    else:
-        raise Exception("Error message from site: {}".format(error).replace("Error:\n","")) from None
+        # get error
+        try:
+            error = driver.find_element_by_xpath("//div[@class='messageText']").text
+        except:
+            raise Exception("Download Data button wasn't found after clicking login and we didn't get an error message back from the page. Suggest disabling headless to troubleshoot") from None
+        else:
+            raise Exception("Error message from site: {}".format(error).replace("Error:\n","")) from None
 
-logger("Logged in and clicked download data")
+    logger("Logged in and clicked download data")
 
-# wait for meter data to load
-WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.ID, "abc0")))
+    # wait for meter data to load
+    WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.ID, "abc0")))
 
-logger("Meter data loaded")
+    logger("Meter data loaded")
 
-# wait for report type to be selectable, then select detailed report (csv)
-# this is still buggy and doesn't always select the field
-# probably need to wait until the option exists, not just the select itself
-WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID, "reportType")))
-Select(driver.find_element_by_id('reportType')).select_by_visible_text('Detailed Report (CSV)')
+    # wait for report type to be selectable, then select detailed report (csv)
+    # this is still buggy and doesn't always select the field
+    # probably need to wait until the option exists, not just the select itself
+    WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID, "reportType")))
+    Select(driver.find_element_by_id('reportType')).select_by_visible_text('Detailed Report (CSV)')
 
-# wait then click request meter data
-driver.implicitly_wait(1) # might help with above bug but now I'm not convinced
-driver.find_element_by_xpath("//input[@value='Request Meter Data']").click()
+    # wait then click request meter data
+    driver.implicitly_wait(1) # might help with above bug but now I'm not convinced
+    driver.find_element_by_xpath("//input[@value='Request Meter Data']").click()
 
-logger("Clicked request meter data, now waiting for csv to download")
+    logger("Clicked request meter data, now waiting for csv to download")
 
-# sleep until csv exists
-timeout_max = 30
-timeout = 0
-while not glob.glob('*CITIPOWER_DETAILED.csv'):
-    if timeout_max == timeout:
-        break
-    time.sleep(1)
-    timeout+=1
+    # sleep until csv exists
+    timeout_max = 30
+    timeout = 0
+    while not glob.glob('*CITIPOWER_DETAILED.csv'):
+        if timeout_max == timeout:
+            break
+        time.sleep(1)
+        timeout+=1
 
-logger("CSV should have been downloaded")
+    logger("CSV should have been downloaded")
 
-driver.quit() # TODO: make sure this is still needed when enclosed in a with
+    driver.quit() # TODO: make sure this is still needed when enclosed in a with

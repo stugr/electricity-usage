@@ -2,7 +2,7 @@ import os
 import time
 import glob
 import csv
-from statistics import median
+from statistics import median, stdev, mean
 
 dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -57,12 +57,14 @@ for i in dead_of_night:
 
 # get historical and last nights median
 historical_median = median(historical_data)
-historical_median_plus10 = historical_median * 1.1
-historical_median_plus20 = historical_median * 1.2
+historical_mean = round(mean(historical_data),4)
+historical_stdev = round(stdev(historical_data),4)
+historical_medstdev = historical_median + historical_stdev
+historical_meanstdev = historical_mean + historical_stdev
 last_nights_median = median(last_nights_data)
 
 # check every day to see which ones were above/below median
-print("Date    \tMedian\t+10%\t+20%")
+print("Date    \tMedian\t+Med+stdev\tMean+stdev")
 for row in rows:
     nightly_data = []
     for i in dead_of_night:
@@ -70,17 +72,16 @@ for row in rows:
     
     nightly_median = median(nightly_data)
 
-    if nightly_median > historical_median_plus10 or nightly_median > historical_median_plus20:
-        print("{}\t{}\t{}\t{}".format(row['IntervalDate'], round(nightly_median,4), nightly_median > historical_median_plus10, nightly_median > historical_median_plus20))
+    if nightly_median > historical_medstdev or nightly_median > historical_meanstdev:
+        print("{}\t{}\t{}\t\t{}".format(row['IntervalDate'], round(nightly_median,4), nightly_median > historical_medstdev, nightly_median > historical_meanstdev))
 
 print()
 print("Historical median: {}".format(historical_median))
-print("Historical median +10%: {}".format(historical_median_plus10))
-print("Historical median +20%: {}".format(historical_median_plus20))
+print("Historical mean: {}".format(historical_mean))
+print("Historical stdev: {}".format(historical_stdev))
+print("Historical median+stdev: {}".format(historical_medstdev))
+print("Historical mean+stdev: {}".format(historical_meanstdev))
 print("Last nights median: {}".format(last_nights_median))
 
-if last_nights_median > historical_median_plus10:
-    "Last night you used more power than the historical media + 10% ({})".format(historical_median_plus10)
-
-if last_nights_median > historical_median_plus20:
-    "Last night you used more power than the historical media + 20% ({})".format(historical_median_plus20)
+if last_nights_median > historical_meanstdev:
+    "Last night you used more power than the historical mean + stdev ({})".format(historical_meanstdev)

@@ -75,6 +75,10 @@ with webdriver.Chrome(executable_path=chromedriver, options=options) as driver:
 
     logger("Login attempted")
 
+    # TODO: check for existence of "You are logged in as" to determine login success or not
+
+    # TODO: add explicit check for multiple NMIs and add the ability to specify an NMI in .env to handle this case
+
     # click download data
     try:
         WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, '//button[contains(text(),"Download Data")]'))).click()

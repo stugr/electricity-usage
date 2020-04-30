@@ -102,7 +102,7 @@ WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID, "reportTyp
 Select(driver.find_element_by_id('reportType')).select_by_visible_text('Detailed Report (CSV)')
 
 # wait then click request meter data
-time.sleep(1) # might help with above bug but now I'm not convinced
+driver.implicitly_wait(1) # might help with above bug but now I'm not convinced
 driver.find_element_by_xpath("//input[@value='Request Meter Data']").click()
 
 logger("Clicked request meter data, now waiting for csv to download")

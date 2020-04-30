@@ -45,6 +45,7 @@ historical_data = []
 last_nights_data = []
 
 # create list of values from dead of night
+# TODO: rethink this, because electricity usage available each day only shows the previous data up until midnight
 for row in rows:
     for i in dead_of_night:
         # TODO: might ignore zeroes

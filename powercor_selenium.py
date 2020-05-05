@@ -41,6 +41,7 @@ load_dotenv()
 powercor = {
     'username': os.getenv("POWERCOR_USERNAME"),
     'password': os.getenv("POWERCOR_PASSWORD"),
+    'nmi': os.getenv("POWERCOR_NMI"), # optional and ignored if user only has one nmi in their portal
     'login_url': 'https://customermeterdata.portal.powercor.com.au/customermeterdata/CADAccountPage',
     'usage_url': 'https://customermeterdata.portal.powercor.com.au/customermeterdata/CADRequestMeterData',
 }
@@ -87,7 +88,21 @@ with webdriver.Chrome(executable_path=chromedriver, options=options) as driver:
         else:
             raise Exception("Error message from site: {}".format(error).replace("Error:\n","")) from None
 
-    # TODO: add explicit check for multiple NMIs and add the ability to specify an NMI in .env to handle this case
+    # count how many checkboxes there are - more than 2 means there are multiple NMIs in the portal and we need to know which to use
+    checkboxes_count = len(driver.find_elements_by_css_selector("input[type='checkbox']"))
+    if checkboxes_count > 2:
+        # if nmi not supplied
+        if not powercor['nmi']:
+            raise Exception("You have multiple NMIs in your portal. Please specify which one you want to use in .env using POWERCOR_NMI=")
+
+        # find nmi on page
+        try:
+            nmi_found = driver.find_element_by_xpath("//span[contains(text(),'{}')]".format(powercor['nmi']))
+        except:
+            raise Exception("POWERCOR_NMI of {} not found on page. Check you've entered it into .env correctly".format(powercor['nmi'])) from None
+
+        # select nmi
+        #driver.find_element_by_id('id0').is_selected()
 
     # click download data
     WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, '//button[contains(text(),"Download Data")]'))).click()

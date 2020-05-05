@@ -97,7 +97,7 @@ with webdriver.Chrome(executable_path=chromedriver, options=options) as driver:
 
         # find nmi on page
         try:
-            nmi_found = driver.find_element_by_xpath("//span[contains(text(),'{}')]//..//../td/label".format(powercor['nmi']))
+            nmi_found = driver.find_element_by_xpath("//input[@value='{}']/following::label".format(powercor['nmi']))
         except:
             raise Exception("POWERCOR_NMI of {} not found on page. Check you've entered it into .env correctly".format(powercor['nmi'])) from None
 

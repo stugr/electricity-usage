@@ -115,13 +115,10 @@ with webdriver.Chrome(executable_path=chromedriver, options=options) as driver:
     logger("Meter data loaded")
 
     # wait for report type to be selectable, then select detailed report (csv)
-    # this is still buggy and doesn't always select the field
-    # probably need to wait until the option exists, not just the select itself
-    WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.ID, "reportType")))
+    WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, "//select/option[.='Detailed Report (CSV)']")))
     Select(driver.find_element_by_id('reportType')).select_by_visible_text('Detailed Report (CSV)')
 
-    # wait then click request meter data
-    driver.implicitly_wait(1) # might help with above bug but now I'm not convinced
+    # click request meter data
     driver.find_element_by_xpath("//input[@value='Request Meter Data']").click()
 
     logger("Clicked request meter data, now waiting for csv to download")

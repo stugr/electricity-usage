@@ -69,9 +69,9 @@ with webdriver.Chrome(executable_path=chromedriver, options=options) as driver:
     logger("Login page loaded")
 
     # fill in username/password and click login
-    driver.find_element_by_id('j_id0:SiteTemplate:j_id297:loginComponent:loginForm:username').send_keys(powercor['username'])
-    driver.find_element_by_id('j_id0:SiteTemplate:j_id297:loginComponent:loginForm:password').send_keys(powercor['password'])
-    driver.find_element_by_id('j_id0:SiteTemplate:j_id297:loginComponent:loginForm:loginButtonAccountPage').click()
+    driver.find_element_by_css_selector('input[id$=\:username]').send_keys(powercor['username'])
+    driver.find_element_by_css_selector('input[id$=\:password]').send_keys(powercor['password'])
+    driver.find_element_by_css_selector("input[type='submit'][value='Login']").click()
 
     logger("Login attempted")
 

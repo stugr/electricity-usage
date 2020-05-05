@@ -75,21 +75,22 @@ with webdriver.Chrome(executable_path=chromedriver, options=options) as driver:
 
     logger("Login attempted")
 
-    # TODO: check for existence of "You are logged in as" to determine login success or not
-
-    # TODO: add explicit check for multiple NMIs and add the ability to specify an NMI in .env to handle this case
-
-    # click download data
+    # check for existence of "You are logged in as" to determine login success or not    
     try:
-        WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, '//button[contains(text(),"Download Data")]'))).click()
+        WebDriverWait(driver, 1).until(EC.presence_of_element_located((By.XPATH, '//span[contains(text(),"You are logged in as ")]')))
     except:
         # get error
         try:
             error = driver.find_element_by_xpath("//div[@class='messageText']").text
         except:
-            raise Exception("Download Data button wasn't found after clicking login and we didn't get an error message back from the page. Suggest disabling headless to troubleshoot") from None
+            raise Exception("'You are logged in as' span wasn't found after clicking login and we didn't get an error message back from the page. Suggest disabling headless to troubleshoot") from None
         else:
             raise Exception("Error message from site: {}".format(error).replace("Error:\n","")) from None
+
+    # TODO: add explicit check for multiple NMIs and add the ability to specify an NMI in .env to handle this case
+
+    # click download data
+    WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, '//button[contains(text(),"Download Data")]'))).click()
 
     logger("Logged in and clicked download data")
 

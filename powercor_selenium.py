@@ -78,7 +78,7 @@ with webdriver.Chrome(executable_path=chromedriver, options=options) as driver:
 
     logger("Login attempted")
 
-    # check for existence of "You are logged in as" to determine login success or not    
+    # check for existence of "You are logged in as" to determine login success or not
     try:
         WebDriverWait(driver, 1).until(EC.presence_of_element_located((By.XPATH, '//span[contains(text(),"You are logged in as ")]')))
     except:

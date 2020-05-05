@@ -1,11 +1,15 @@
 import os
 import time
 import glob
+import re
+import requests
 from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from datetime import datetime
+from dateutil.relativedelta  import relativedelta
 
 debug = True # debug true to print and screenshot as code runs
 headless = True # toggle to false if you need to see the browser
@@ -141,21 +145,67 @@ with webdriver.Chrome(executable_path=chromedriver, options=options) as driver:
         # either options didn't load or button wasn't enabled, so sleep then try again
         driver.implicitly_wait(1)
         timeout+=1
-    
-    # click request meter data
-    driver.find_element_by_xpath("//input[@value='Request Meter Data']").click()
 
-    logger("Clicked request meter data, now waiting for csv to download")
+    logger("Requesting file download using requests")
 
-    # sleep until csv exists
-    timeout_max = 30
-    timeout = 0
-    while not glob.glob('*CITIPOWER_DETAILED.csv'):
-        if timeout_max == timeout:
-            logger("Hit timeout waiting for csv")
-            break
-        time.sleep(1)
-        timeout+=1
+    today = datetime.now()
+
+    # get form data
+    # TODO: check what frmDate should be if less than 2 years of data
+    form_data = {
+        'j_id0:SiteTemplate:j_id158': 'j_id0:SiteTemplate:j_id158',
+        'meter': 'Interval',
+        'j_id0:SiteTemplate:j_id158:selMeterType': 'Interval',
+        'j_id0:SiteTemplate:j_id158:selReportType': 'Detailed Report (CSV)',
+        'j_id0:SiteTemplate:j_id158:selNMI': None,
+        'j_id0:SiteTemplate:j_id158:frmDate': (today - relativedelta(years=2)).strftime("%d/%m/%Y"),
+        'j_id0:SiteTemplate:j_id158:toDate': today.strftime("%d/%m/%Y"),
+        'j_id0:SiteTemplate:j_id158:j_id235': 'Request Meter Data',
+        'com.salesforce.visualforce.ViewState': None,
+        'com.salesforce.visualforce.ViewStateVersion': None,
+        'com.salesforce.visualforce.ViewStateMAC': None,
+        'com.salesforce.visualforce.ViewStateCSRF': None
+    }
+
+    for key in form_data:
+        # if a value is None, go and get it from the page
+        if not form_data[key]:
+            form_data[key] = driver.find_element_by_id(key).get_attribute("value")
+
+    headers = {
+        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+        "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+        "cache-control": "max-age=0",
+        "content-type": "application/x-www-form-urlencoded",
+        "sec-fetch-dest": "document",
+        "sec-fetch-mode": "navigate",
+        "sec-fetch-site": "same-origin",
+        "sec-fetch-user": "?1",
+        "upgrade-insecure-requests": "1",
+        "referrer": "https://customermeterdata.portal.powercor.com.au/customermeterdata/CADRequestMeterData?selNMI=61025343521",
+    }
+
+    with requests.session() as s:
+        # get cookies from webdriver and set them in requests
+        cookies = driver.get_cookies()
+        for cookie in cookies:
+            s.cookies.set(cookie['name'], cookie['value'])
+
+        # download meter data
+        response = s.post(
+            'https://customermeterdata.portal.powercor.com.au/customermeterdata/CADRequestMeterData?selNMI={}'.format(form_data['j_id0:SiteTemplate:j_id158:selNMI']),
+            data = form_data,
+            headers = headers,
+        )
+
+        if response.ok:
+            # get filename from content-disposition
+            disposition = response.headers['content-disposition']
+            filename = re.findall("filename=(.+)", disposition)[0]
+
+            # save file
+            with open(os.path.join(dir, filename), 'w', newline='') as file:
+                file.write(response.text)
 
     logger("CSV should have been downloaded")
 

@@ -131,6 +131,7 @@ with webdriver.Chrome(executable_path=chromedriver, options=options) as driver:
     timeout = 0
     while not glob.glob('*CITIPOWER_DETAILED.csv'):
         if timeout_max == timeout:
+            logger("Hit timeout waiting for csv")
             break
         time.sleep(1)
         timeout+=1

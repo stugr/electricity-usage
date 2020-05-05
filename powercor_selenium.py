@@ -97,12 +97,12 @@ with webdriver.Chrome(executable_path=chromedriver, options=options) as driver:
 
         # find nmi on page
         try:
-            nmi_found = driver.find_element_by_xpath("//span[contains(text(),'{}')]".format(powercor['nmi']))
+            nmi_found = driver.find_element_by_xpath("//span[contains(text(),'{}')]//..//../td/label".format(powercor['nmi']))
         except:
             raise Exception("POWERCOR_NMI of {} not found on page. Check you've entered it into .env correctly".format(powercor['nmi'])) from None
 
         # select nmi
-        #driver.find_element_by_id('id0').is_selected()
+        nmi_found.click()
 
     # click download data
     WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, '//button[contains(text(),"Download Data")]'))).click()

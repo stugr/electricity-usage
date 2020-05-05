@@ -3,7 +3,6 @@ import time
 import glob
 from dotenv import load_dotenv
 from selenium import webdriver
-from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -119,10 +118,30 @@ with webdriver.Chrome(executable_path=chromedriver, options=options) as driver:
 
     logger("Meter data loaded")
 
-    # wait for report type to be selectable, then select detailed report (csv)
-    WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, "//select/option[.='Detailed Report (CSV)']")))
-    Select(driver.find_element_by_id('reportType')).select_by_visible_text('Detailed Report (CSV)')
+    # wait for report type to be selectable
+    WebDriverWait(driver, 1).until(EC.presence_of_element_located((By.XPATH, "//select/option[.='Detailed Report (CSV)']")))
 
+    # select Detailed Report (CSV) - not using Select from selenium.webdriver.support.ui due to a js issue
+    timeout = 0
+    while timeout < 5:
+        # get options
+        options = driver.find_element_by_id('reportType').find_elements_by_tag_name('option')
+
+        # if options loaded successfully
+        if len(options) > 1:
+            for option in options:
+                if option.text == 'Detailed Report (CSV)':
+                    option.click()
+                    break
+
+            # wait for button to be enabled
+            if driver.find_element_by_xpath("//input[@value='Request Meter Data']").is_enabled():
+                break
+
+        # either options didn't load or button wasn't enabled, so sleep then try again
+        driver.implicitly_wait(1)
+        timeout+=1
+    
     # click request meter data
     driver.find_element_by_xpath("//input[@value='Request Meter Data']").click()
 

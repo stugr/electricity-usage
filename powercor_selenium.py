@@ -90,6 +90,9 @@ with webdriver.Chrome(executable_path=chromedriver, options=options) as driver:
         else:
             raise Exception("Error message from site: {}".format(error).replace("Error:\n","")) from None
 
+    # wait until NMIs are loaded
+    WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, '//span[contains(text(),"Showing ")]')))
+
     # count how many checkboxes there are - more than 2 means there are multiple NMIs in the portal and we need to know which to use
     checkboxes_count = len(driver.find_elements_by_css_selector("input[type='checkbox']"))
     if checkboxes_count > 2:

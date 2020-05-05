@@ -55,6 +55,8 @@ if not powercor['password']:
 options = webdriver.ChromeOptions()
 if headless:
     options.add_argument('headless')
+if debug:
+    options.add_argument('window-size=800,1024')
 options.add_argument("log-level=3")
 options.add_experimental_option("prefs", {
   "download.default_directory": dir,

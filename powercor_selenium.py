@@ -201,5 +201,3 @@ with webdriver.Chrome(options=options) as driver:
                 file.write(response.text)
 
     logger("CSV should have been downloaded")
-
-    driver.quit() # TODO: make sure this is still needed when enclosed in a with

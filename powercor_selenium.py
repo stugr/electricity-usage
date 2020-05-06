@@ -16,8 +16,6 @@ headless = True # toggle to false if you need to see the browser
 
 log_count = 1
 dir = os.path.dirname(os.path.abspath(__file__))
-# get chromedriver from https://sites.google.com/a/chromium.org/chromedriver/downloads
-chromedriver = os.path.join(dir, "chromedriver.exe") # TODO: check path for existence first - also don't assume windows
 
 # debug logger
 def logger(msg=""):
@@ -68,7 +66,8 @@ options.add_experimental_option("prefs", {
   "safebrowsing.enabled": True
 })
 
-with webdriver.Chrome(executable_path=chromedriver, options=options) as driver:
+# get chromedriver from https://sites.google.com/a/chromium.org/chromedriver/downloads
+with webdriver.Chrome(options=options) as driver:
     # load login page 
     driver.get('https://customermeterdata.portal.powercor.com.au/customermeterdata/CADAccountPage?startURL=%2Fcustomermeterdata%2FCADAccountPage')
 

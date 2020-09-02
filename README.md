@@ -4,7 +4,7 @@ Only tested on Windows so far
 
 ## powercor_selenium.py
 
-Download `chromedriver.exe` from https://sites.google.com/a/chromium.org/chromedriver/downloads and put it in the same dir as code
+Download `chromedriver.exe` from https://sites.google.com/a/chromium.org/chromedriver/downloads and put it on `%path%`
 
 Rename `sample.env` to `.env` and populate `POWERCOR_` values
 

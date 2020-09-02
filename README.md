@@ -1,4 +1,4 @@
-# amber-ismyairconon
+# electricity-usage
 
 Only tested on Windows so far
 

@@ -64,7 +64,7 @@ historical_meanstdev = historical_mean + historical_stdev
 last_nights_median = median(last_nights_data)
 
 # check every day to see which ones were above/below median
-print("Date    \tMedian\t+Med+stdev\tMean+stdev")
+print("Date    \tMedian\tMed+stdev\tMean+stdev")
 for row in rows:
     nightly_data = []
     for i in dead_of_night:

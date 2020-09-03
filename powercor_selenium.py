@@ -18,17 +18,18 @@ log_count = 1
 dir = os.path.dirname(os.path.abspath(__file__))
 
 # debug logger
-def logger(msg=""):
+def logger(msg="",screenshot=True):
     global log_count
     global driver
     global dir
     global debug
 
     if debug:
-        msg = "{}. {}".format(log_count, msg)
+        if screenshot:
+            msg = "{}. {}".format(log_count, msg)
+            driver.save_screenshot(os.path.join(dir, "screenshot_{}.png".format(log_count)))
+            log_count+=1
         print(msg)
-        driver.save_screenshot(os.path.join(dir, "screenshot_{}.png".format(log_count)))
-        log_count+=1
 
 # lazy cleanup from previous runs
 for filePath in (glob.glob('*CITIPOWER_DETAILED.csv') + glob.glob('screenshot_*.png')):
@@ -51,6 +52,8 @@ if not powercor['username']:
     raise ValueError("Specify POWERCOR_USERNAME in .env file")
 if not powercor['password']:
     raise ValueError("Specify POWERCOR_PASSWORD in .env file")
+
+logger(powercor['username'], False)
 
 # setup webdriver
 options = webdriver.ChromeOptions()
